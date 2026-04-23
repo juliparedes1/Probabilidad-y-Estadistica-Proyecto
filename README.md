@@ -1,11 +1,23 @@
-# titulo
+# Análisis sobre Dataset de Vinos
 
-Para la realizacion de este trabajo elegimos trabajar con una poblacion de (100000) vinos, y sus calificaciones asociadas (21000000). Para ello contamos con una muestra, registrada en dos tablas: 
-- Tabla de vinos: lista de 100 vinos diferentes, para los cuales se cuenta con su nombre, pais (country), tipo (type), graduacion aloholica (abv), tipos de uva utilizados, maridaje...
-- Tabla de calificaciones: lista de 1000 calificaciones (rating), cada una expresado como un numero del 1 al 5, para cada vino.
-La recoleccion de estos datos fue realizada por otro equipo de forma automatica por medio de varios sitios web, entre febrero y marzo de 2022. 
-El dataset que usamos es una version resumida de la recoleccion original (100000 vinos y 21000000 calificaciones). Al ser nuestro data set, una herramienta para probar inferencias sobre el dataset con mas datos, consideramos que es una muestra aleatoria
+Para la realización de este trabajo elegimos trabajar con un dataset de vinos, con una poblacion de cien vinos, y sus calificaciones asociadas. 
+Para ello contamos con una muestra, registrada en dos tablas: 
 
+- **Tabla de vinos:** lista de 100 vinos diferentes, para los cuales se cuenta con su nombre, país (country), tipo (type), graduación alcohólica (abv), tipos de uva utilizados, maridaje...
+- **Tabla de calificaciones:** lista de 1.000 calificaciones (rating), cada una expresado como un número del 1 al 5, para cada vino.
+
+La recolección de estos datos fue realizada por otro equipo de forma automática por medio de varios sitios web, entre Febrero y Marzo de 2022.
+El dataset que usamos es una versión resumida de la recolección original (100.000 vinos y 21.000.000 calificaciones). Al ser nuestro dataset de muestra, una herramienta para probar inferencias sobre el dataset original, consideramos que es una muestra aleatoria.
+
+Hicimos una selección de las variables de interés, son las siguientes:
+- **Country (país)** - Variable cualitativa nominal
+  - Valores únicos: 17 
+- **Rating (puntuación)** - Variable cuantitativa de razón
+  - Rango de valores: [1;5]
+- **ABV (Alcohól por volumen)** - Variable cuantitativa contínua de razón
+  - Rango de valores: [4;48]
+- **Type (tipo de vino)** - Variable cualitativa nominal 
+  - Valores únicos: 5 
 
 
 ---
