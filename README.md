@@ -19,6 +19,16 @@ Hicimos una selección de las variables de interés, son las siguientes:
 - **Type (tipo de vino)** - Variable cualitativa nominal 
   - Valores únicos: 5 
 
+Posibles parámetros:
+- Observar si hay una diferencia de Rating según el tipo de vino - ¿Qué tipos de vino son mejores valorados por los comensales?
+  - Boxplot | Violín para dispersión de los datos.(Min - 1.5*RIC) 
+- Observar si hay una relación entre el volumen de alcohól y el puntaje asociado al vino.
+  - Scatterplot - Tendencia lineal - cuanto más aumenta o decrementa el volumen de alcohol, sube o baja el puntaje 
+- Observar si los vinos de difentes paises tienen diferencias en puntaje significativas -  analizar por continente en caso de ser muchas categorías 
+  - Analizar por la Mediana 
+- Observar si hay diferencias de nivel de alcohól por tipo de vino. (Promedio de nivel de alcohól por tipo de vino) - Grafico de barras horizontales (con ICs) 
+- Por continente/país, evaluar el nivel de alcohol de los vinos producidos - Ridgeline Plot
+
 
 ---
 - [ ] Una breve introducción y un problema bien detallado, incluyendo unidad de análisis, población

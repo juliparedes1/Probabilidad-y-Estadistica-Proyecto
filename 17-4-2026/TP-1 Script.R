@@ -22,10 +22,31 @@ df_completo <- merge(df_ratings, df_wines, by = "WineID")
 #Eliminación de Dataframes ya unificados
 rm(df_ratings, df_wines)
 
-#Eliminación de columnas que no utilizamos mediante select (librería dplyr)
+unique(df_completo$Country)
+
+#Eliminación de columnas que no utilizamos mediante select
 df_completo <- df_completo %>% select(-RatingID, -UserID, -Date,
                                       -WineryID, -WineryName, -Website,
                                       -Vintages, -RegionID, -RegionName)
+
+paises <- df_completo$Country
+
+#Definimos el mapeo "País" = "Continente"
+mapeo_continentes <- c(
+  "Brazil" = "South America", "Argentina" = "South America", "Chile" = "South America", "Uruguay" = "South America",
+  "Portugal" = "Europe", "Germany" = "Europe", "France" = "Europe", "Italy" = "Europe", 
+  "Spain" = "Europe", "Austria" = "Europe", "Russia" = "Europe", "Greece" = "Europe",
+  "South Africa" = "Africa",
+  "Australia" = "Oceania", "New Zealand" = "Oceania",
+  "United States" = "North America", "Canada" = "North America"
+)
+
+#Mapeamos continentes según país
+continentes <- mapeo_continentes[paises]
+
+#Expandir rango [1,5] a [1,10]
+puntaje_10 = round(((df_completo$Rating-1)*2.25)+1)
+df_completo$Puntaje = puntaje_10
 
 #Análisis de nulos - Observamos que no tenemos nulos en ninguna columna
 tabla_nulos <- data.frame(

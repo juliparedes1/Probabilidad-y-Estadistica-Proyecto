@@ -7,7 +7,7 @@ setwd("C:\\Users\\PC\\Desktop\\TUIA\\2do año\\probabilidad y estadistica\\Proba
 #read.csv("C:\\Users\\PC\\Desktop\\TUIA\\2do año\\probabilidad y estadistica\\Probabilidad-y-Estadistica-Proyecto\\XWines_Test_100_wines.csv") 
 
 
-exploded_wines <- Wines %>% # el %>% sirve como un pipe "y luego..."
+exploded_wines <- df_wines %>% # el %>% sirve como un pipe "y luego..."
   # Paso A: Limpiamos los caracteres indeseados usando expresiones regulares
   mutate(Harmonize_clean = str_remove_all(Harmonize, "\\['|'\\]|'")) %>% #la doble barra sirve para escapar la primera, ya que dentro de las comillas dobles existen simbolos como \t con significado
   
