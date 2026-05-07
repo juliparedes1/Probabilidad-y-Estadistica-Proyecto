@@ -44,6 +44,10 @@ mapeo_continentes <- c(
 #Mapeamos continentes según país
 continentes <- mapeo_continentes[paises]
 
+
+#Agregamos columna de continentes a df_completo
+df_completo$Continente <- mapeo_continentes[df_completo$Country]
+
 #Expandir rango [1,5] a [1,10]
 puntaje_10 = round(((df_completo$Rating-1)*2.25)+1)
 df_completo$Puntaje = puntaje_10
@@ -124,4 +128,52 @@ ggplot(df_proporciones, aes(x = Type, y = Porcentaje, fill = Nivel_Alcohol)) +
     fill = "Graduación (ABV)"
   ) +
   theme_minimal()
+
+#===========================================================================
+
+df_promedios_continente <- df_completo %>%
+  group_by(Continente) %>%
+  summarise(Rating_Promedio = mean(Rating)) %>%
+  arrange(Rating_Promedio)
+
+#Observar si los vinos de difentes paises tienen diferencias en puntaje significativas
+
+ggplot(data = df_promedios_continente, 
+       aes(x = reorder(Continente, -Rating_Promedio), 
+           y = Rating_Promedio, 
+           fill = Continente)) +
+  geom_col(alpha = 0.8) +
+  labs(
+    title = "Rating Promedio por Continente",
+    x = "Continente",
+    y = "Rating Promedio"
+  ) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
+# Observar si hay diferencias de nivel de alcohól por tipo de vino. 
+df_alcohol_tipo <- df_completo %>%
+  group_by(Type) %>%
+  summarise(
+    media = mean(ABV),
+    sd = sd(ABV),
+    n = n(),
+    se = sd / sqrt(n),                       # error estándar
+    IC_inf = media - 1.96 * se,
+    IC_sup = media + 1.96 * se
+  )
+
+ggplot(df_alcohol_tipo, 
+       aes(x = reorder(Type, media), y = media, fill = Type)) +
+  geom_col(alpha = 0.8) +
+  #geom_errorbar(aes(ymin = IC_inf, ymax = IC_sup), width = 0.2) +
+  coord_flip() +
+  labs(
+    title = "Nivel Promedio de Alcohol por Tipo de Vino",
+    x = "Tipo de Vino",
+    y = "Promedio de Alcohol (ABV)"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+#=======================================================
 
