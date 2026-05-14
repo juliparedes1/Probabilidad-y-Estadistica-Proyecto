@@ -130,13 +130,23 @@ ggplot(df_proporciones, aes(x = Type, y = Porcentaje, fill = Nivel_Alcohol)) +
   theme_minimal()
 
 #===========================================================================
-
+#Análisis final
 df_promedios_continente <- df_completo %>%
   group_by(Continente) %>%
   summarise(Rating_Promedio = mean(Rating)) %>%
   arrange(Rating_Promedio)
 
-#Observar si los vinos de difentes paises tienen diferencias en puntaje significativas
+#Observar si los vinos de difentes continentes tienen diferencias en puntaje significativas
+#Gráfico - Boxplot para observar dispersión
+ggplot(df_completo, aes(x = Continente, y = Rating, fill = Continente)) +
+  geom_boxplot(alpha = 0.7) +
+  labs(
+    title = "Distribución de Calificaciones por Continente",
+    x = "Continente",
+    y = "Calificación (Rating)"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
 
 ggplot(data = df_promedios_continente, 
        aes(x = reorder(Continente, -Rating_Promedio), 
@@ -162,6 +172,20 @@ df_alcohol_tipo <- df_completo %>%
     IC_sup = media + 1.96 * se
   )
 
+#Gráfico - Boxplot para observar dispersión
+
+#Consultar: ¿Sacar outliers de Dessert o normalizar?
+
+ggplot(df_completo, aes(x = Type, y = ABV, fill = Type)) +
+  geom_boxplot(alpha = 0.7) +
+  labs(
+    title = "Distribución de Nivel de Alcohol por Tipo de Vino",
+    x = "Tipo de Vino",
+    y = "Nivel de Alcohol"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
 ggplot(df_alcohol_tipo, 
        aes(x = reorder(Type, media), y = media, fill = Type)) +
   geom_col(alpha = 0.8) +
@@ -176,4 +200,11 @@ ggplot(df_alcohol_tipo,
   theme(legend.position = "none")
 
 #=======================================================
+#Análisis de frecuencia (Tipo de Vino + Continente)
+unique(df_completo$Continente)
+unique(df_completo$Type)
+#Sacar una medida resumen - (Encontrar medida resumen)
+#Sacar los IC
 
+#Preguntar: Si estamos tratando con una muestra de una encuesta,
+#y generalizamos para la encuesta o para todos los vinos.
