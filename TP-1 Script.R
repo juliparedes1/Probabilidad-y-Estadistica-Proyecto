@@ -45,6 +45,10 @@ mapeo_continentes <- c(
 #Mapeamos continentes según país
 continentes <- mapeo_continentes[paises]
 
+#eliminamos el outlier ya que no corresponde a un vino sino a un agua ardiente
+df_completo = df_completo %>% filter(ABV < 40)
+
+
 
 #Agregamos columna de continentes a df_completo
 df_completo$Continente <- mapeo_continentes[df_completo$Country]
@@ -70,9 +74,11 @@ df_completo <- df_completo %>%
 frecuencias_por_tipo<- df_completo %>%
   count(Type, name = "Frecuencia", sort = TRUE)
 
+
+#=======================================================================
+
 #Caso de análisis: ¿Qué tipo de vino tiene el mejor promedio de rating?
 #Análisis complementario: Dispersión de rating por tipo de vino.
-
 #Gráfico - Boxplot para observar dispersión
 ggplot(df_completo, aes(x = Type, y = Rating, fill = Type)) +
   geom_boxplot(alpha = 0.7) +
@@ -83,6 +89,11 @@ ggplot(df_completo, aes(x = Type, y = Rating, fill = Type)) +
   ) +
   theme_minimal() +
   theme(legend.position = "none")
+
+
+
+
+#=======================================================================
 
 df_promedios_tipo <- df_completo %>%
   group_by(Type) %>%
@@ -100,22 +111,6 @@ ggplot(df_promedios_tipo, aes(x = reorder(Type, -Rating_Promedio), y = Rating_Pr
   theme_minimal() +
   theme(legend.position = "none")
 
-#Análisis 2 - Proporción de niveles de alcohol por tipo de vino
-#Discretización de la columna ABV - Niveles Alto, Moderado y Bajo.
-df_completo <- df_completo %>%
-  mutate(Nivel_Alcohol = case_when(
-    ABV < 12 ~ "Bajo (<12%)",
-    ABV >= 12 & ABV <= 14.5 ~ "Moderado (12-14.5%)",
-    ABV > 14.5 ~ "Alto (>14.5%)",
-  )) %>%
-  mutate(Nivel_Alcohol = factor(Nivel_Alcohol, 
-                                levels = c("Bajo (<12%)", "Moderado (12-14.5%)", "Alto (>14.5%)")))
-
-
-df_proporciones <- df_completo %>%
-  count(Type, Nivel_Alcohol) %>%
-  group_by(Type) %>%
-  mutate(Porcentaje = n / sum(n) * 100)
 
 
 #===========================================================================
@@ -136,6 +131,7 @@ ggplot(df_completo, aes(x = Continente, y = Rating, fill = Continente)) +
   ) +
   theme_minimal() +
   theme(legend.position = "none")
+#=======================================================================
 
 ggplot(data = df_promedios_continente, 
        aes(x = reorder(Continente, -Rating_Promedio), 
@@ -149,24 +145,11 @@ ggplot(data = df_promedios_continente,
   ) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1))
 
-p95 = qnorm(p=0.95,0,1)
-p_que_estaba = 1.96
+z95 = qnorm(p = 0.975, mean = 0, sd = 1)
 
-# Observar si hay diferencias de nivel de alcohól por tipo de vino. 
-df_alcohol_tipo <- df_completo %>%
-  group_by(Type) %>%
-  summarise(
-    media = mean(ABV),
-    sd = sd(ABV),
-    n = n(),
-    se = sd / sqrt(n),                       # error estándar
-    IC_inf = media - p95 * se,
-    IC_sup = media + p95 * se
-  )
+#=======================================================================
 
 #Gráfico - Boxplot para observar dispersión
-
-#Consultar: ¿Sacar outliers de Dessert o normalizar?
 
 ggplot(df_completo, aes(x = Type, y = ABV, fill = Type)) +
   geom_boxplot(alpha = 0.7) +
@@ -179,29 +162,24 @@ ggplot(df_completo, aes(x = Type, y = ABV, fill = Type)) +
   theme(legend.position = "none")
 
 #=======================================================================
-#Analisis sin outlier
-analisis_sin_outlier = df_completo %>% filter(ABV < 40)
+# Observar si hay diferencias de nivel de alcohól por tipo de vino. 
+df_alcohol_tipo <- df_completo %>%
+  group_by(Type) %>%
+  summarise(
+    media = mean(ABV),
+    sd = sd(ABV),
+    n = n(),
+    se = sd / sqrt(n),                       # error estándar
+    IC_inf = media - Z95 * se,
+    IC_sup = media + Z95 * se
+  )
 
-ggplot(analisis_sin_outlier, aes(x = Type, y = ABV, fill = Type)) +
-  geom_boxplot(alpha = 0.7) +
-  labs(
-    title = "Distribución de Nivel de Alcohol por Tipo de Vino",
-    x = "Tipo de Vino",
-    y = "Nivel de Alcohol"
-  ) +
-  theme_minimal() +
-  theme(legend.position = "none")
 
 tapply(df_completo$ABV,df_completo$Type,median)
 tapply(analisis_sin_outlier$ABV,analisis_sin_outlier$Type,median)
 median(df_completo$T)
 
-
-
 count(group_by(df_wines,Type))
-
-
-#=======================================================================
 
 ggplot(df_alcohol_tipo, 
        aes(x = reorder(Type, media), y = media)) +
@@ -218,13 +196,4 @@ ggplot(df_alcohol_tipo,
 
 
 
-#=======================================================
-#Análisis de frecuencia (Tipo de Vino + Continente)
-unique(df_completo$Continente)
-unique(df_completo$Type)
-#Sacar una medida resumen - (Encontrar medida resumen)
-#Sacar los IC
-
-#Preguntar: Si estamos tratando con una muestra de una encuesta,
-#y generalizamos para la encuesta o para todos los vinos.
-
+#======================================================================
