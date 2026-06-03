@@ -112,22 +112,7 @@ df_promedios_continente <- df_completo %>%
 
 #--- Gráficos finales para el informe ---
 #Análisis N. 1
-#Gráfico de Barras con IC 95%
-ggplot(data = df_promedios_continente, 
-       aes(x = reorder(Continente, -Rating_Promedio), 
-           y = Rating_Promedio, 
-           fill = Continente)) +
-  geom_col(alpha = 0.8) +
-  coord_flip() +
-  labs(
-    title = "Puntaje Promedio por Continente (con IC 95%)",
-    x = "Continente",
-    y = "Puntaje Promedio"
-  ) +
-  theme_minimal() +
-  theme(
-    legend.position = "none"
-  )
+
 
 #Geom_pointrange con IC 95%
 ggplot(data = df_promedios_continente, 
@@ -178,19 +163,6 @@ tapply(analisis_sin_outlier$ABV,analisis_sin_outlier$Type,median)
 median(df_completo$T)
 
 count(group_by(df_wines,Type))
-
-#Gráfico de Barras con IC 95%
-ggplot(df_alcohol_tipo, 
-       aes(x = reorder(Type, media), y = media, fill = Type)) +
-  geom_col(alpha = 0.8) +
-  coord_flip() +
-  labs(
-    title = "Nivel Promedio de Alcohol por Tipo de Vino (con IC 95%)",
-    x = "Tipo de Vino",
-    y = "Promedio de Alcohol (ABV)"
-  ) +
-  theme_minimal() +
-  theme(legend.position = "none")
 
 #Geom_pointrange con IC 95%
 ggplot(df_alcohol_tipo, 
