@@ -118,7 +118,6 @@ ggplot(data = df_promedios_continente,
            y = Rating_Promedio, 
            fill = Continente)) +
   geom_col(alpha = 0.8) +
-  geom_errorbar(aes(ymin = IC_inf, ymax = IC_sup), width = 0.2, linewidth = 0.8) +
   coord_flip() +
   labs(
     title = "Puntaje Promedio por Continente (con IC 95%)",
@@ -184,7 +183,6 @@ count(group_by(df_wines,Type))
 ggplot(df_alcohol_tipo, 
        aes(x = reorder(Type, media), y = media, fill = Type)) +
   geom_col(alpha = 0.8) +
-  geom_errorbar(aes(ymin = IC_inf, ymax = IC_sup), width = 0.2, linewidth = 0.8) +
   coord_flip() +
   labs(
     title = "Nivel Promedio de Alcohol por Tipo de Vino (con IC 95%)",
