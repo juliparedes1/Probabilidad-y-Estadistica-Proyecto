@@ -32,7 +32,7 @@ df_completo <- df_completo %>% select(-RatingID, -UserID, -Date,
 
 paises <- df_completo$Country
 
-#Definimos el mapeo "País" = "Continente"
+#Definimos el mapeo "País" -> "Continente"
 mapeo_continentes <- c(
   "Brazil" = "South America", "Argentina" = "South America", "Chile" = "South America", "Uruguay" = "South America",
   "Portugal" = "Europe", "Germany" = "Europe", "France" = "Europe", "Italy" = "Europe", 
@@ -47,8 +47,6 @@ continentes <- mapeo_continentes[paises]
 
 #eliminamos el outlier ya que no corresponde a un vino sino a un agua ardiente
 df_completo = df_completo %>% filter(ABV < 40)
-
-
 
 #Agregamos columna de continentes a df_completo
 df_completo$Continente <- mapeo_continentes[df_completo$Country]
@@ -76,48 +74,10 @@ frecuencias_por_tipo<- df_completo %>%
 
 
 #=======================================================================
-
-#Caso de análisis: ¿Qué tipo de vino tiene el mejor promedio de rating?
-#Análisis complementario: Dispersión de rating por tipo de vino.
-#Gráfico - Boxplot para observar dispersión
-ggplot(df_completo, aes(x = Type, y = Rating, fill = Type)) +
-  geom_boxplot(alpha = 0.7) +
-  labs(
-    title = "Distribución de Calificaciones por Tipo de Vino",
-    x = "Tipo de Vino",
-    y = "Calificación (Rating)"
-  ) +
-  theme_minimal() +
-  theme(legend.position = "none")
-
-
-
-
-#=======================================================================
-
-df_promedios_tipo <- df_completo %>%
-  group_by(Type) %>%
-  summarise(Rating_Promedio = mean(Rating)) %>%
-  arrange(desc(Rating_Promedio))
-
-#Gráfico - Barras, promedios de Rating por tipo de vino
-ggplot(df_promedios_tipo, aes(x = reorder(Type, -Rating_Promedio), y = Rating_Promedio, fill = Type)) +
-  geom_bar(stat = "identity", alpha = 0.8) +
-  labs(
-    title = "Rating Promedio por Tipo de Vino",
-    x = "Tipo de Vino",
-    y = "Promedio de Rating"
-  ) +
-  theme_minimal() +
-  theme(legend.position = "none")
-
-
-
-#===========================================================================
-#Análisis final
+#Caso de análisis: ¿Es posible identificar diferencias en la calidad del vino según la procedencia?
 df_promedios_continente <- df_completo %>%
   group_by(Continente) %>%
-  summarise(Rating_Promedio = mean(Rating)) %>%
+  summarise(Rating_Promedio = mean(Puntaje)) %>%
   arrange(Rating_Promedio)
 
 #Observar si los vinos de difentes continentes tienen diferencias en puntaje significativas
@@ -127,30 +87,69 @@ ggplot(df_completo, aes(x = Continente, y = Rating, fill = Continente)) +
   labs(
     title = "Distribución de Calificaciones por Continente",
     x = "Continente",
-    y = "Calificación (Rating)"
+    y = "Puntaje"
   ) +
   theme_minimal() +
   theme(legend.position = "none")
-#=======================================================================
 
+#=======================================================================
+# Cálculo del cuantil en una distribución normal
+# Se utiliza p = 0.975 para un nivel de confianza del 95% dejando dos colas de %2.5
+z95 = qnorm(p = 0.975)
+
+#Calculamos los promedios de puntaje por continente y guardamos el intervalo de confianza
+df_promedios_continente <- df_completo %>%
+  group_by(Continente) %>%
+  summarise(
+    Rating_Promedio = mean(Puntaje),
+    sd = sd(Puntaje),
+    n = n(),
+    se = sd / sqrt(n),
+    IC_inf = Rating_Promedio - z95 * se,
+    IC_sup = Rating_Promedio + z95 * se
+  ) %>%
+  arrange(desc(Rating_Promedio))
+
+#--- Gráficos finales para el informe ---
+#Análisis N. 1
+#Gráfico de Barras con IC 95%
 ggplot(data = df_promedios_continente, 
        aes(x = reorder(Continente, -Rating_Promedio), 
            y = Rating_Promedio, 
            fill = Continente)) +
   geom_col(alpha = 0.8) +
+  geom_errorbar(aes(ymin = IC_inf, ymax = IC_sup), width = 0.2, linewidth = 0.8) +
+  coord_flip() +
   labs(
-    title = "Rating Promedio por Continente",
+    title = "Puntaje Promedio por Continente (con IC 95%)",
     x = "Continente",
-    y = "Rating Promedio"
+    y = "Puntaje Promedio"
   ) +
-  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+  theme_minimal() +
+  theme(
+    legend.position = "none"
+  )
 
-z95 = qnorm(p = 0.975, mean = 0, sd = 1)
-
+#Geom_pointrange con IC 95%
+ggplot(data = df_promedios_continente, 
+       aes(x = reorder(Continente, Rating_Promedio), 
+           y = Rating_Promedio, 
+           color = Continente)) +
+  geom_pointrange(aes(ymin = IC_inf, ymax = IC_sup), linewidth = 0.8, size = 0.5) +
+  coord_flip() +
+  labs(
+    title = "Puntaje Promedio por Continente (con IC 95%)",
+    x = "Continente",
+    y = "Puntaje Promedio"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
 #=======================================================================
+#Caso de Análisis: 
+#¿Existen diferencias observables en el contenido alcohólico promedio
+#entre los distintos tipos de vino?
 
 #Gráfico - Boxplot para observar dispersión
-
 ggplot(df_completo, aes(x = Type, y = ABV, fill = Type)) +
   geom_boxplot(alpha = 0.7) +
   labs(
@@ -162,16 +161,16 @@ ggplot(df_completo, aes(x = Type, y = ABV, fill = Type)) +
   theme(legend.position = "none")
 
 #=======================================================================
-# Observar si hay diferencias de nivel de alcohól por tipo de vino. 
+# Observar si hay diferencias de nivel de alcohol por tipo de vino. 
 df_alcohol_tipo <- df_completo %>%
   group_by(Type) %>%
   summarise(
     media = mean(ABV),
     sd = sd(ABV),
     n = n(),
-    se = sd / sqrt(n),                       # error estándar
-    IC_inf = media - Z95 * se,
-    IC_sup = media + Z95 * se
+    se = sd / sqrt(n),
+    IC_inf = media - z95 * se,
+    IC_sup = media + z95 * se
   )
 
 
@@ -181,19 +180,31 @@ median(df_completo$T)
 
 count(group_by(df_wines,Type))
 
+#Gráfico de Barras con IC 95%
 ggplot(df_alcohol_tipo, 
-       aes(x = reorder(Type, media), y = media)) +
-  
-  geom_pointrange(aes(ymin = IC_inf, ymax = IC_sup), width = 0.2) +
+       aes(x = reorder(Type, media), y = media, fill = Type)) +
+  geom_col(alpha = 0.8) +
+  geom_errorbar(aes(ymin = IC_inf, ymax = IC_sup), width = 0.2, linewidth = 0.8) +
   coord_flip() +
   labs(
-    title = "Nivel Promedio de Alcohol por Tipo de Vino",
+    title = "Nivel Promedio de Alcohol por Tipo de Vino (con IC 95%)",
     x = "Tipo de Vino",
     y = "Promedio de Alcohol (ABV)"
   ) +
   theme_minimal() +
   theme(legend.position = "none")
 
-
-
+#Geom_pointrange con IC 95%
+ggplot(df_alcohol_tipo, 
+       aes(x = reorder(Type, media), y = media, color = Type)) +
+  geom_pointrange(aes(ymin = IC_inf, ymax = IC_sup), size = 0.5, linewidth = 0.8) +
+  coord_flip() +
+  labs(
+    title = "Nivel Promedio de Alcohol por Tipo de Vino (con IC 95%)",
+    x = "Tipo de Vino",
+    y = "Promedio de Alcohol (ABV)"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
 #======================================================================
+
